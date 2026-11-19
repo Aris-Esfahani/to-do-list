@@ -35,6 +35,13 @@ Both share the same saved pages and settings, so you can switch between them.
 
 Tick the **Canvas** box at the pad's bottom-left and your Canvas assignments appear on each day's page and in the week overview: due time, course, and a strike-through once submitted. Clicking one opens it in Canvas.
 
+<p align="center">
+  <img src="docs/notepad-canvas-day.png" width="46%" alt="A day page with three Canvas assignments listed above the handwritten notes, each with a coloured course dot, due time and course code">
+  &nbsp;&nbsp;
+  <img src="docs/notepad-canvas-week.png" width="46%" alt="The week overview in dark mode with each day's Canvas assignments above its notes; past ones are struck through">
+</p>
+<p align="center"><sub>Sample courses and assignments, for illustration.</sub></p>
+
 Connecting takes a minute and works with any school's Canvas:
 
 - **Sign in**: type your school's name, pick it from the list, and your school's normal Canvas sign-in page opens, SSO included. The notepad keeps the signed-in session. Sessions expire after a while, so you'll occasionally be asked to sign in again.
@@ -92,5 +99,5 @@ The workflow builds both exes on a Windows runner and publishes a release with t
 | `preload.js` | The few window actions the page may ask for |
 | `canvas.js` | Canvas integration: school finder, sign-in window, access token, fetching and caching |
 | `scripts/make-icons.js` | Draws the app/tray icon into `assets/` (`npm run icons`) |
-| `scripts/screenshots.js` | Renders the README screenshots into `docs/` (`npm run screenshots`) |
+| `scripts/screenshots.js` | Renders the README screenshots into `docs/`, Canvas ones with sample data (`npm run screenshots`) |
 | `.github/workflows/release.yml` | Builds and publishes a release on each `v*` tag |

@@ -36,6 +36,13 @@
   const shouldAnimate = () => isDesktop || !reducedMotion.matches;
 
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // The content policy blocks style="" attributes in HTML strings, so colours and fonts that
+  // vary per item are written as data-color / data-font and applied here through the DOM.
+  function applyInlineStyles(container) {
+    for (const el of container.querySelectorAll('[data-color]')) el.style.setProperty('--c', el.dataset.color);
+    for (const el of container.querySelectorAll('[data-font]')) el.style.fontFamily = el.dataset.font;
+  }
   const uid = () => `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
   /* ---------- Preferences: appearance, writing font, list style ---------- */
@@ -1092,7 +1099,7 @@
       const options = (localFonts ?? []).map((n) => `<option value="${esc(n)}"></option>`).join('');
       const chips = webFonts.map((f) => `
         <li>
-          <button type="button" class="cp-chip${prefs.font === `web:${f.id}` ? ' is-on' : ''}" data-act="use-web" data-id="${esc(f.id)}" style="font-family: ${esc(cssFamily(f.family))}">${esc(f.family)}</button>
+          <button type="button" class="cp-chip${prefs.font === `web:${f.id}` ? ' is-on' : ''}" data-act="use-web" data-id="${esc(f.id)}" data-font="${esc(cssFamily(f.family))}">${esc(f.family)}</button>
           <button type="button" class="cp-x" data-act="remove-web" data-id="${esc(f.id)}" aria-label="Remove ${esc(f.family)}">×</button>
         </li>`).join('');
       return `
@@ -1153,6 +1160,7 @@
             : '<span class="cp-muted">Available in the desktop app</span>'}
         </div>
         <p class="cp-muted cp-hint">Tip: click the mark in the margin (or press Ctrl+Enter) to cross a line out. Crossed-out lines sink to the bottom.</p>`;
+      applyInlineStyles(body);
     }
 
     async function fontAction(act, button) {
@@ -1305,15 +1313,17 @@
         const due = d.el.querySelector('.due');
         due.innerHTML = list.map((i) => `
           <button type="button" class="due-item${i.done ? ' is-done' : ''}${i.missing ? ' is-missing' : ''}" data-url="${esc(i.url)}" title="${esc(i.course)}${i.done ? ' · submitted' : ''}">
-            <i class="dot" style="--c:${esc(colorOf(i))}"></i>
+            <i class="dot" data-color="${esc(colorOf(i))}"></i>
             <span class="due-title">${esc(i.title)}</span>
             <span class="due-meta">${i.timed ? esc(timeFmt.format(new Date(i.date))) + ' · ' : ''}${esc(shortCourse(i))}</span>
           </button>`).join('');
         due.hidden = list.length === 0;
+        applyInlineStyles(due);
         const row = pad.querySelector(`[data-due="${d.id}"]`);
         if (row) {
-          row.innerHTML = list.slice(0, 3).map((i) => `<span class="wd-item${i.done ? ' is-done' : ''}"><i class="dot" style="--c:${esc(colorOf(i))}"></i>${esc(i.title)}</span>`).join('')
+          row.innerHTML = list.slice(0, 3).map((i) => `<span class="wd-item${i.done ? ' is-done' : ''}"><i class="dot" data-color="${esc(colorOf(i))}"></i>${esc(i.title)}</span>`).join('')
             + (list.length > 3 ? `<span class="wd-more">+${list.length - 3} more</span>` : '');
+          applyInlineStyles(row);
         }
       }
     }
@@ -1412,7 +1422,7 @@
         const courses = cs.courses.length
           ? `<span class="cp-label">Courses</span>
              <ul class="cp-courses">${cs.courses.map((c) => `
-               <li><label class="cp-course"><input type="checkbox" data-course="${c.id}" ${c.hidden ? '' : 'checked'}><i class="dot" style="--c:${esc(c.color)}"></i><span>${esc(c.name)}</span></label></li>`).join('')}
+               <li><label class="cp-course"><input type="checkbox" data-course="${c.id}" ${c.hidden ? '' : 'checked'}><i class="dot" data-color="${esc(c.color)}"></i><span>${esc(c.name)}</span></label></li>`).join('')}
              </ul>`
           : '<p class="cp-muted">No courses loaded yet.</p>';
         html = `
@@ -1427,6 +1437,7 @@
           </div>`;
       }
       body.innerHTML = `${html}<p class="cp-error" data-notice>${esc(notice)}</p>`;
+      applyInlineStyles(body);
       body.querySelector('.cp-input')?.focus();
     }
 
